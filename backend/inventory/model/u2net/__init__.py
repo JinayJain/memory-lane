@@ -6,9 +6,9 @@ from torchvision import transforms
 import numpy as np
 from PIL import Image
 
-from inventory.u2net.data_loader import RescaleT
-from inventory.u2net.data_loader import ToTensorLab
-from inventory.u2net.model import U2NET  # full size version 173.6 MB
+from .data_loader import RescaleT
+from .data_loader import ToTensorLab
+from .u2net import U2NET  # full size version 173.6 MB
 
 
 net = None

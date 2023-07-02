@@ -48,10 +48,7 @@ def run():
     res_segment = u2net.run(model_input, MODEL_DIR).resize(img.size)
     img.putalpha(res_segment)
 
-    res_depth = zoedepth.run(model_input)
-    colorized = zoedepth.colorize(res_depth)
-
-    plt.imsave("/tmp/depth.png", colorized)
+    depth_img, mesh = zoedepth.run(model_input)
 
     bbox = res_segment.getbbox()
 
@@ -71,7 +68,9 @@ def run():
     logging.info(f"Completed in {time.time() - start:.2f}s")
 
     # Return data
-    return send_file(buff, mimetype="image/png")
+    # return send_file(buff, mimetype="image/png")
+
+    return send_file(mesh, mimetype="model/gltf-binary")
 
 
 if __name__ == "__main__":

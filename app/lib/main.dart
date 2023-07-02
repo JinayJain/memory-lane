@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker_android/image_picker_android.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
+import 'package:model_viewer_plus/model_viewer_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
   runApp(const MyApp());
@@ -64,7 +68,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future pickImage(ImageSource source) async {
-    final rawImage = await ImagePicker().pickImage(source: source);
+    final rawImage = await ImagePicker().pickImage(
+      source: source,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      imageQuality: 50,
+    );
 
     if (rawImage != null) {
       final image = await FlutterExifRotation.rotateImage(path: rawImage.path);
@@ -72,23 +81,42 @@ class _HomePageState extends State<HomePage> {
       final apiUrl = Uri.parse("https://jjain.loca.lt");
       var request = http.MultipartRequest("POST", apiUrl);
       request.files.add(await http.MultipartFile.fromPath("data", image.path));
+
+      // print the request size, including the file
+      print(request.contentLength);
+
       var response = await request.send();
-      final responseData = await response.stream.toBytes();
 
       if (response.statusCode == 200) {
+        print("Success");
         if (!context.mounted) return;
+        // save the response to a file
+        final modelBytes = await response.stream.toBytes();
+
+        final tempFolder = await getApplicationDocumentsDirectory();
+
+        final modelFile = File("${tempFolder.path}/model.glb")
+          ..createSync()
+          ..writeAsBytesSync(modelBytes);
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
-              body: Center(
-                child: Image.memory(responseData),
+              body: ModelViewer(
+                src: modelFile.uri.toString(),
+                ar: true,
+                autoRotate: true,
+                cameraControls: true,
               ),
             ),
           ),
         );
       } else {
-        print("Failed");
+        print("Failed with ${response.statusCode}");
+
+        var responseString = await response.stream.bytesToString();
+        print(responseString);
       }
     }
   }
