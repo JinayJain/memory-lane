@@ -31,7 +31,7 @@ def load_model():
     return net
 
 
-def run(img: Image) -> Image:
+def run(img: Image):
     global net
 
     if net is None:
@@ -56,6 +56,8 @@ def run(img: Image) -> Image:
     vertex_colors = image.reshape(-1, 3)
 
     mesh = trimesh.Trimesh(vertices=pts3d, faces=triangles, vertex_colors=vertex_colors)
+    rot_mat = trimesh.transformations.rotation_matrix(np.pi, [0, 1, 0])
+    mesh.apply_transform(rot_mat)
 
     glb_file = tempfile.NamedTemporaryFile(suffix=".glb")
     print(glb_file.name)

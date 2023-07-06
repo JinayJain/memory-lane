@@ -1,6 +1,7 @@
+import gzip
 import io
 import os
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, send_file, jsonify, make_response
 from flask_cors import CORS
 from PIL import Image
 import time
@@ -48,7 +49,7 @@ def run():
     res_segment = u2net.run(model_input, MODEL_DIR).resize(img.size)
     img.putalpha(res_segment)
 
-    depth_img, mesh = zoedepth.run(model_input)
+    depth_img, mesh_file = zoedepth.run(model_input)
 
     bbox = res_segment.getbbox()
 
@@ -68,9 +69,7 @@ def run():
     logging.info(f"Completed in {time.time() - start:.2f}s")
 
     # Return data
-    # return send_file(buff, mimetype="image/png")
-
-    return send_file(mesh, mimetype="model/gltf-binary")
+    return send_file(mesh_file, mimetype="model/gltf-binary")
 
 
 if __name__ == "__main__":
