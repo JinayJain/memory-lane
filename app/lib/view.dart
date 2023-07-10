@@ -30,7 +30,7 @@ class _ViewPageState extends State<ViewPage> {
       quality: 50,
     );
 
-    final apiUrl = Uri.parse("https://jjain.loca.lt");
+    final apiUrl = Uri.parse("https://7538-108-52-86-66.ngrok.io/");
     var request = http.MultipartRequest("POST", apiUrl);
 
     if (compressed == null) {
@@ -94,7 +94,10 @@ class _ViewPageState extends State<ViewPage> {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _processImage();
+      _processImage().catchError((e) {
+        print(e);
+        Navigator.pop(context);
+      });
     });
   }
 
@@ -155,6 +158,7 @@ class _ViewPageState extends State<ViewPage> {
         body: ModelViewer(
           src: _modelUrl!,
           ar: true,
+          scale: "0.5 0.5 0.5",
           autoRotate: true,
           cameraControls: true,
         ),

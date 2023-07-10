@@ -8,6 +8,7 @@ import 'package:image_picker_android/image_picker_android.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,6 +18,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late String _modelUrl;
+
   @override
   void initState() {
     super.initState();
@@ -26,6 +29,8 @@ class _HomePageState extends State<HomePage> {
     if (imagePickerImplementation is ImagePickerAndroid) {
       imagePickerImplementation.useAndroidPhotoPicker = true;
     }
+
+    rootBundle.load("assets/example.glb").then((value) {});
   }
 
   @override
@@ -39,36 +44,51 @@ class _HomePageState extends State<HomePage> {
         // add theming
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 200,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Select an image to get started",
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => pickImage(ImageSource.camera),
-                    icon: Icon(Icons.camera, size: 32),
-                    label: Text("Camera"),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => pickImage(ImageSource.gallery),
-                    icon: Icon(Icons.photo),
-                    label: Text("Gallery"),
-                  ),
-                ],
-              ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 5,
+            child: ModelViewer(
+              src: "assets/example.glb",
+              alt: "Example 3D model",
+              autoRotate: true,
+              // maxCameraOrbit: "157.5deg 157.5deg auto",
+              // minCameraOrbit: "22.5deg 22.5deg auto",
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                const Text(
+                  "Relive your memories in immersive 3D",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => pickImage(ImageSource.camera),
+                      icon: Icon(Icons.camera, size: 32),
+                      label: Text("Camera"),
+                    ),
+                    SizedBox(width: 16),
+                    ElevatedButton.icon(
+                      onPressed: () => pickImage(ImageSource.gallery),
+                      icon: Icon(Icons.photo),
+                      label: Text("Gallery"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

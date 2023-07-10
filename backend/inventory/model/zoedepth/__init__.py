@@ -63,6 +63,8 @@ def run(img: Image):
     print(glb_file.name)
     mesh.export(glb_file.name)
 
+    mesh.export("/tmp/mesh.glb")
+
     return colorized_depth, glb_file
 
 
